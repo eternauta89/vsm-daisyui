@@ -1,0 +1,36 @@
+<div x-data="{ open: false, query: '' }" class="relative">
+  <input type="hidden" name="{{ name }}" x-bind:value="{{ field }}" />
+  <button
+    type="button"
+    x-on:click="open = !open"
+    x-on:click.outside="open = false"
+    class="border-base-300 bg-base-100 flex h-10 w-full items-center justify-between gap-2 rounded-lg border px-3 text-sm"
+  >
+    <span class="truncate" x-text="{{ field }} || '{{ placeholder }}'" x-bind:class="{{ field }} ? '' : 'opacity-40'"></span>
+    {% include 'core/partials/icon.html' with name='chevron-down' extra='size-4 shrink-0 opacity-60' %}
+  </button>
+  <div
+    x-show="open"
+    x-transition
+    class="dropdown bg-base-100 text-base-content border-base-300 absolute z-30 mt-1 w-72 max-w-full rounded-box border p-2 shadow-md"
+  >
+    <label class="input mb-2 w-full">
+      {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
+      <input type="text" class="grow" placeholder="Buscar..." x-model="query" />
+    </label>
+    <ul class="menu max-h-48 w-full flex-nowrap overflow-y-auto p-0">
+      <template x-if="{{ options_js }}.filter((o) => o.toLowerCase().includes(query.toLowerCase())).length === 0">
+        <li class="text-base-content/50 px-3 py-2 text-sm">Sin resultados</li>
+      </template>
+      <template x-for="opt in {{ options_js }}.filter((o) => o.toLowerCase().includes(query.toLowerCase()))" :key="opt">
+        <li>
+          <button
+            type="button"
+            x-on:click="{{ field }} = opt; query = ''; open = false"
+            x-text="opt"
+          ></button>
+        </li>
+      </template>
+    </ul>
+  </div>
+</div>

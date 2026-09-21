@@ -1,0 +1,100 @@
+{% extends 'core/base.html' %}
+{% block page_title %}Permisos de retiro{% endblock %}
+{% block header_title %}Permisos de retiro{% endblock %}
+
+{% block content %}
+<div class="card bg-base-100 rounded-box border border-base-300 p-4 shadow-sm sm:p-6">
+  <div role="tablist" class="tabs tabs-box w-fit">
+    <a href="?tab=sin-permiso" role="tab" class="tab {% if active_tab == 'sin-permiso' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Sin permiso</a>
+    <a href="?tab=con-permiso" role="tab" class="tab {% if active_tab == 'con-permiso' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Con permiso</a>
+    <a href="?tab=por-centro" role="tab" class="tab {% if active_tab == 'por-centro' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Por centro de costo</a>
+  </div>
+
+  <div class="bg-base-200 border-base-300 mt-4 rounded-lg border p-4">
+    <p class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
+      {% include 'core/partials/icon.html' with name='shield-check' extra='size-4' %}
+      {{ copy.title }}
+    </p>
+    <p class="text-base-content/60 mt-1 text-xs">{{ copy.description }}</p>
+  </div>
+
+  <form method="get" class="mt-4 flex flex-wrap items-center gap-3">
+    <input type="hidden" name="tab" value="{{ active_tab }}" />
+    <label class="input w-full sm:max-w-sm">
+      {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
+      <input type="search" name="q" class="grow" placeholder="Buscar articulo por código o descripción..." value="{{ q }}" data-autosubmit-empty />
+    </label>
+    <button type="submit" name="buscar" value="1" class="btn btn-primary">Buscar</button>
+  </form>
+
+  <div class="mt-4 max-h-[520px] max-w-full overflow-auto rounded-box border border-base-300">
+    {% if active_tab == 'por-centro' %}
+      <table class="table table-sm">
+        <thead class="bg-base-100 sticky top-0 z-10"><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>MATERIALES ASIGNADOS</th><th>ACCIÓN</th></tr></thead>
+        <tbody>
+          {% if not centros %}
+            <tr><td colspan="4" class="p-0">
+              <div class="flex flex-col items-center gap-2 px-6 py-12 text-center">
+                {% include 'core/partials/icon.html' with name='search-x' extra='text-base-content/30 size-8' %}
+                <p class="font-medium">No se encontraron centros de costo</p>
+                <p class="text-base-content/60 max-w-sm text-sm">No hay resultados para "{{ busqueda_aplicada }}". Probá con otro código o nombre de centro.</p>
+              </div>
+            </td></tr>
+          {% endif %}
+          {% for c in centros %}
+            <tr class="hover:bg-base-200">
+              <td class="text-primary font-medium">{{ c.codigo }}</td>
+              <td>{{ c.nombre }}</td>
+              <td><span class="badge badge-info badge-sm text-white">{{ c.materiales_asignados }}</span></td>
+              <td>
+                <button type="button" class="btn gap-1 border-none bg-[#880d27] text-white hover:bg-[#6e0a1f]">
+                  {% include 'core/partials/icon.html' with name='pencil' extra='size-3.5' %}
+                  Editar
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <table class="table table-sm">
+        <thead class="bg-base-100 sticky top-0 z-10"><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>CLASE SAP</th><th>CENTRO</th><th>ACCIÓN</th></tr></thead>
+        <tbody>
+          {% if not materiales %}
+            <tr><td colspan="5" class="p-0">
+              <div class="flex flex-col items-center gap-2 px-6 py-12 text-center">
+                {% include 'core/partials/icon.html' with name='search-x' extra='text-base-content/30 size-8' %}
+                <p class="font-medium">No se encontraron materiales</p>
+                <p class="text-base-content/60 max-w-sm text-sm">No hay resultados para "{{ busqueda_aplicada }}". Probá con otro código o descripción.</p>
+              </div>
+            </td></tr>
+          {% endif %}
+          {% for m in materiales %}
+            <tr class="hover:bg-base-200">
+              <td class="text-primary font-medium">{{ m.codigo }}</td>
+              <td>{{ m.descripcion }}</td>
+              <td><span class="badge badge-info badge-sm text-white">{{ m.clase_sap }}</span></td>
+              <td>{{ m.centro }}</td>
+              <td>
+                <button type="button" class="btn gap-1 border-none bg-[#880d27] text-white hover:bg-[#6e0a1f]">
+                  {% include 'core/partials/icon.html' with name='pencil' extra='size-3.5' %}
+                  Editar
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+
+  <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex items-center gap-2 text-sm opacity-70">
+      <span>1-6 de 100</span>
+      <span>Filas</span>
+      <select class="select w-20"><option>12</option><option>24</option><option>48</option></select>
+    </div>
+    {% include 'core/partials/pagination.html' %}
+  </div>
+</div>
+{% endblock %}

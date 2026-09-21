@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@source "../core/templates/**/*.html";
+
+@theme {
+  --font-sans:
+    "Roboto", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji";
+}
+
+@plugin "daisyui" {
+  themes: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(96.4% 0.003 84.6);
+  --color-base-300: oklch(92.5% 0.008 91.5);
+  --color-base-content: oklch(23% 0.004 106.7);
+
+  --color-primary: oklch(55.8% 0.06 74.3);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(43.6% 0.045 75.3);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(72% 0.147 232);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(27.8% 0.03 256.8);
+  --color-neutral-content: oklch(98% 0 0);
+
+  --color-info: oklch(70% 0.15 230);
+  --color-info-content: oklch(20% 0.05 230);
+  --color-success: oklch(80% 0.182 151.7);
+  --color-success-content: oklch(22% 0.05 150);
+  --color-warning: oklch(79.5% 0.162 86);
+  --color-warning-content: oklch(25% 0.06 85);
+  --color-error: oklch(63% 0.21 25);
+  --color-error-content: oklch(98% 0 0);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: #1d2022;
+  --color-base-200: oklch(26% 0 0);
+  --color-base-300: oklch(32.9% 0 0);
+  --color-base-content: oklch(96.7% 0.003 264.5);
+
+  --color-primary: oklch(55.8% 0.06 74.3);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(43.6% 0.045 75.3);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(72% 0.147 232);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(21.8% 0 0);
+  --color-neutral-content: oklch(98% 0 0);
+
+  --color-info: oklch(72% 0.14 230);
+  --color-info-content: oklch(18% 0.05 230);
+  --color-success: oklch(80% 0.182 151.7);
+  --color-success-content: oklch(20% 0.05 150);
+  --color-warning: oklch(83.7% 0.164 84.4);
+  --color-warning-content: oklch(22% 0.06 85);
+  --color-error: oklch(66% 0.2 25);
+  --color-error-content: oklch(98% 0 0);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}

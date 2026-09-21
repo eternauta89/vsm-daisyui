@@ -1,0 +1,155 @@
+{% load static %}
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VSM · {% block page_title %}Vales de salida{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'core/css/output.css' %}?v={% now 'U' %}" />
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+      (function () {
+        var saved = localStorage.getItem('vsm-theme')
+        if (saved) document.documentElement.setAttribute('data-theme', saved)
+      })()
+    </script>
+  </head>
+  <body class="min-h-screen bg-base-200">
+    <div class="drawer lg:drawer-open">
+      <input id="main-menu-drawer" type="checkbox" class="drawer-toggle" />
+
+      <div class="drawer-content min-h-screen bg-base-200">
+        <header class="navbar bg-primary text-primary-content px-4 sm:px-6">
+          <div class="flex-1">
+            <label
+              for="main-menu-drawer"
+              class="btn btn-ghost btn-square drawer-button text-primary-content hover:bg-black/10 border-transparent hover:border-transparent lg:hidden"
+              aria-label="Abrir menú"
+            >
+              {% include 'core/partials/icon.html' with name='menu' %}
+            </label>
+          </div>
+
+          <div class="flex-none">
+            <h1 class="text-lg font-semibold sm:text-xl">{% block header_title %}Vales de salida{% endblock %}</h1>
+          </div>
+
+          <div class="flex-1 flex justify-end items-center gap-3">
+            <label class="swap swap-rotate">
+              <input
+                type="checkbox"
+                class="theme-controller"
+                value="dark"
+                onchange="window.vsmSetTheme(this.checked ? 'dark' : 'light')"
+              />
+              {% include 'core/partials/icon.html' with name='sun' extra='swap-off size-5' %}
+              {% include 'core/partials/icon.html' with name='moon' extra='swap-on size-5' %}
+            </label>
+
+            <button
+              type="button"
+              class="btn btn-ghost text-primary-content hover:bg-black/10 border-transparent hover:border-transparent gap-2 px-2"
+              popovertarget="user-menu"
+              style="anchor-name: --user-menu"
+            >
+              <div class="avatar avatar-placeholder avatar-online">
+                <div class="bg-primary-content text-primary w-8 rounded-full">
+                  <span class="text-xs font-semibold">FR</span>
+                </div>
+              </div>
+              <span class="hidden text-left leading-tight sm:block">
+                <span class="block text-sm font-medium">frodriguez</span>
+                <span class="block text-xs opacity-80">Pañol - Operador</span>
+              </span>
+              {% include 'core/partials/icon.html' with name='chevron-down' extra='size-4' %}
+            </button>
+            <ul
+              class="dropdown dropdown-end menu bg-base-100 text-base-content rounded-box z-1 mt-2 w-56 p-2 shadow-md"
+              popover="auto"
+              id="user-menu"
+              style="position-anchor: --user-menu"
+            >
+              <li class="menu-title">Pañol - Operador</li>
+              <li><a>Mi perfil</a></li>
+              <li><a>Cerrar sesión</a></li>
+            </ul>
+          </div>
+        </header>
+
+        <main class="mx-auto max-w-[1200px] px-4 pt-6 pb-32 sm:px-6">
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+
+      <div class="drawer-side z-50">
+        <label for="main-menu-drawer" aria-label="Cerrar menú" class="drawer-overlay"></label>
+
+        <aside class="bg-neutral text-neutral-content flex min-h-full w-72 flex-col">
+          <div class="bg-primary text-primary-content flex shrink-0 items-center justify-between px-4 py-3">
+            <div>
+              <p class="text-lg font-semibold leading-tight">Rioplatense</p>
+              <p class="text-xs tracking-wide opacity-80">FRIGORÍFICO</p>
+            </div>
+            <label for="main-menu-drawer" class="cursor-pointer lg:hidden" aria-label="Cerrar menú">
+              {% include 'core/partials/icon.html' with name='x' extra='size-5' %}
+            </label>
+          </div>
+
+          <nav class="flex grow flex-col gap-3 overflow-y-auto p-4">
+            <button
+              type="button"
+              class="btn btn-primary w-full gap-2"
+              onclick="document.getElementById('main-menu-drawer').checked=false; document.getElementById('solicitar_vale_modal').showModal()"
+            >
+              {% include 'core/partials/icon.html' with name='plus' extra='size-4' %}
+              Nuevo VSM
+            </button>
+
+            <ul class="menu w-full gap-1 p-0">
+              {% for item in nav_items %}
+                <li>
+                  <a
+                    href="{{ item.url }}"
+                    class="{% if item.key == active_page %}menu-active border-primary text-neutral-content border-l-4 !bg-white/10{% else %}text-neutral-content{% endif %}"
+                  >
+                    {% include 'core/partials/icon.html' with name=item.icon extra='size-5' %}
+                    {{ item.label }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </nav>
+
+          <button type="button" class="flex shrink-0 items-center gap-2 px-6 py-5 text-left">
+            {% include 'core/partials/icon.html' with name='log-out' extra='size-5' %}
+            Cerrar sesión
+          </button>
+        </aside>
+      </div>
+    </div>
+
+    <div id="toast-container" class="toast toast-end toast-bottom z-[100]"></div>
+
+    {% include 'core/partials/solicitar_vale_modal.html' %}
+    {% include 'core/partials/ver_materiales_modal.html' %}
+    {% include 'core/partials/entregar_materiales_modal.html' %}
+    {% include 'core/partials/capturar_firma_modal.html' %}
+
+    <script src="{% static 'core/js/app.js' %}?v={% now 'U' %}"></script>
+    {% if messages %}
+      <script>
+        {% for message in messages %}
+          window.vsmToast('{{ message.tags|default:"success" }}', '{{ message.message|escapejs }}');
+        {% endfor %}
+      </script>
+    {% endif %}
+    {% block extra_body %}{% endblock %}
+  </body>
+</html>

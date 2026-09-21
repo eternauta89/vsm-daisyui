@@ -1,0 +1,208 @@
+{% extends 'core/base.html' %}
+{% block page_title %}Control de stock VSM{% endblock %}
+{% block header_title %}Control de stock VSM{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="bg-neutral text-neutral-content rounded-2xl border border-base-300 p-6 shadow-sm">
+      <div class="text-primary flex items-center gap-2">
+        {% include 'core/partials/icon.html' with name='package' extra='size-[18px]' %}
+        <span>Artículos</span>
+      </div>
+      <p class="mt-1 text-4xl font-extrabold">16</p>
+    </div>
+    <div class="bg-neutral text-neutral-content rounded-2xl border border-base-300 p-6 shadow-sm">
+      <div class="text-primary flex items-center gap-2">
+        {% include 'core/partials/icon.html' with name='triangle-alert' extra='size-[18px]' %}
+        <span>Unidades en Stock</span>
+      </div>
+      <p class="mt-1 text-4xl font-extrabold">3</p>
+      <p class="text-sm opacity-60">Consultado en SAP el 17/09/2026 12:24</p>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 rounded-box border border-base-300 p-4 shadow-sm sm:p-6">
+    <div role="tablist" class="tabs tabs-box w-fit">
+      <a href="?tab=por-fecha" role="tab" class="tab {% if active_tab == 'por-fecha' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Control de stock</a>
+      <a href="?tab=existencia-sap" role="tab" class="tab {% if active_tab == 'existencia-sap' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Stock total</a>
+    </div>
+
+    {% if active_tab == 'existencia-sap' %}
+      <div class="bg-base-200 border-base-300 mt-4 rounded-lg border p-4">
+        <p class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
+          {% include 'core/partials/icon.html' with name='package' extra='size-4' %}
+          Existencias actuales en SAP
+        </p>
+        <p class="text-base-content/60 mt-1 text-xs">Cantidades disponibles al momento de la consulta, tal como figuran en SAP.</p>
+      </div>
+
+      <form method="get" class="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+        <input type="hidden" name="tab" value="existencia-sap" />
+        <label class="input w-full sm:max-w-sm">
+          {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
+          <input type="search" name="q" class="grow" placeholder="Buscar articulo por código o descripción..." value="{{ q }}" data-autosubmit-empty />
+        </label>
+
+        <fieldset class="fieldset w-full p-0 sm:w-64">
+          <label class="label" for="filtro-almacen">Filtrar por almacén</label>
+          <select id="filtro-almacen" name="almacen" class="select w-full !pr-16">
+            <option value="todos" {% if almacen == 'todos' %}selected{% endif %}>Todos los almacenes</option>
+            <option value="G001" {% if almacen == 'G001' %}selected{% endif %}>G001</option>
+            <option value="GCAR" {% if almacen == 'GCAR' %}selected{% endif %}>GCAR</option>
+          </select>
+        </fieldset>
+
+        <label class="label gap-2">
+          <input type="checkbox" name="solo_con_stock" class="checkbox" {% if solo_con_stock %}checked{% endif %} />
+          Solo con stock
+        </label>
+
+        <div class="flex items-center gap-3 sm:ml-auto">
+          <button type="submit" name="consultar" value="1" class="btn btn-primary">Consultar</button>
+          <a href="?tab=existencia-sap" class="link link-hover text-sm">Limpiar</a>
+        </div>
+      </form>
+    {% else %}
+      <div class="bg-base-200 border-base-300 mt-4 rounded-lg border p-4">
+        <p class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
+          {% include 'core/partials/icon.html' with name='calendar' extra='size-4' %}
+          Consulta a SAP por rango de fechas
+        </p>
+        <p class="text-base-content/60 mt-1 text-xs">Análisis de entregas y stock SAP.</p>
+
+        <form
+          method="get"
+          x-data="{
+            presetActivo: null,
+            aplicarPreset(key, dias) {
+              const hoy = new Date()
+              const desde = new Date(hoy)
+              desde.setDate(hoy.getDate() - dias)
+              this.$refs.desde.value = desde.toISOString().slice(0, 10)
+              this.$refs.hasta.value = hoy.toISOString().slice(0, 10)
+              this.presetActivo = key
+            },
+          }"
+        >
+          <input type="hidden" name="tab" value="por-fecha" />
+
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-primary" x-bind:class="presetActivo === 'hoy' ? '' : 'btn-outline'" x-on:click="aplicarPreset('hoy', 0)">Hoy</button>
+            <button type="button" class="btn btn-primary" x-bind:class="presetActivo === 'semana' ? '' : 'btn-outline'" x-on:click="aplicarPreset('semana', 7)">Última semana</button>
+            <button type="button" class="btn btn-primary" x-bind:class="presetActivo === 'mes' ? '' : 'btn-outline'" x-on:click="aplicarPreset('mes', 30)">Último mes</button>
+          </div>
+
+          <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+            <div class="flex min-w-0 items-end gap-3">
+              <fieldset class="fieldset min-w-0 flex-1 p-0 sm:max-w-sm">
+                <label class="label" for="fecha-q">Buscar</label>
+                <label class="input w-full" for="fecha-q">
+                  {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
+                  <input id="fecha-q" type="search" name="q" class="grow" placeholder="Buscar por código o artículo..." value="{{ q }}" data-autosubmit-empty />
+                </label>
+              </fieldset>
+              <fieldset class="fieldset shrink-0 p-0">
+                <label class="label" for="fecha-desde">Fechas desde</label>
+                <label class="input" for="fecha-desde">
+                  {% include 'core/partials/icon.html' with name='calendar' extra='size-4 opacity-60' %}
+                  <input id="fecha-desde" x-ref="desde" x-on:input="presetActivo = null" type="date" name="desde" class="grow" value="{{ desde }}" />
+                </label>
+              </fieldset>
+              <fieldset class="fieldset shrink-0 p-0">
+                <label class="label" for="fecha-hasta">Fechas hasta</label>
+                <label class="input" for="fecha-hasta">
+                  {% include 'core/partials/icon.html' with name='calendar' extra='size-4 opacity-60' %}
+                  <input id="fecha-hasta" x-ref="hasta" x-on:input="presetActivo = null" type="date" name="hasta" class="grow" value="{{ hasta }}" />
+                </label>
+              </fieldset>
+            </div>
+            <div class="flex items-center gap-3">
+              <button type="submit" name="consultar" value="1" class="btn btn-primary">Consultar SAP</button>
+              <a href="?tab=por-fecha" class="link link-hover text-sm">Limpiar</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    {% endif %}
+
+    <div class="mt-4 max-h-[520px] max-w-full overflow-auto rounded-box border border-base-300">
+      {% if active_tab == 'por-fecha' %}
+        <table class="table table-sm">
+          <thead class="bg-base-100 sticky top-0 z-10"><tr>{% for c in columns_por_fecha %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+          <tbody>
+            {% if not consultado_por_fecha %}
+              <tr><td colspan="5" class="p-0">
+                <div class="flex flex-col items-center gap-2 px-6 py-12 text-center">
+                  {% include 'core/partials/icon.html' with name='calendar-search' extra='text-base-content/30 size-8' %}
+                  {% if falta_rango_fechas %}
+                    <p class="font-medium">Falta seleccionar el rango de fechas</p>
+                    <p class="text-base-content/60 max-w-sm text-sm">Elegí "Fechas desde" y "Fechas hasta" (o un preset) y presioná "Consultar SAP" para ver los movimientos.</p>
+                  {% else %}
+                    <p class="font-medium">Seleccioná un rango de fechas</p>
+                    <p class="text-base-content/60 max-w-sm text-sm">Elegí "Fechas desde" y "Fechas hasta" (o un preset como "Última semana") y presioná "Consultar SAP" para analizar el stock.</p>
+                  {% endif %}
+                </div>
+              </td></tr>
+            {% elif not movimientos %}
+              <tr><td colspan="5" class="p-0">
+                <div class="flex flex-col items-center gap-2 px-6 py-12 text-center">
+                  {% include 'core/partials/icon.html' with name='search-x' extra='text-base-content/30 size-8' %}
+                  <p class="font-medium">No se encontraron movimientos</p>
+                  <p class="text-base-content/60 max-w-sm text-sm">
+                    No hay resultados para "{{ busqueda_aplicada|default:'esta búsqueda' }}" en el rango de fechas consultado. Probá con otro código o ampliá el rango.
+                  </p>
+                </div>
+              </td></tr>
+            {% endif %}
+            {% for m in movimientos %}
+              <tr class="hover:bg-base-200">
+                <td class="text-primary font-medium">{{ m.codigo }}</td>
+                <td>{{ m.descripcion }}</td>
+                <td>{{ m.almacen }}</td>
+                <td>{{ m.cantidad_entregada }}</td>
+                <td>{{ m.fecha }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <table class="table table-sm">
+          <thead class="bg-base-100 sticky top-0 z-10"><tr>{% for c in columns_existencia %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+          <tbody>
+            {% if not articulos %}
+              <tr><td colspan="5" class="p-0">
+                <div class="flex flex-col items-center gap-2 px-6 py-12 text-center">
+                  {% include 'core/partials/icon.html' with name='search-x' extra='text-base-content/30 size-8' %}
+                  <p class="font-medium">No se encontraron artículos</p>
+                  <p class="text-base-content/60 max-w-sm text-sm">
+                    No hay resultados para "{{ busqueda_aplicada|default:'esta búsqueda' }}" con los filtros consultados. Probá con otro código, almacén, o desmarcá "Solo con stock".
+                  </p>
+                </div>
+              </td></tr>
+            {% endif %}
+            {% for a in articulos %}
+              <tr class="hover:bg-base-200">
+                <td class="text-primary font-medium">{{ a.codigo }}</td>
+                <td>{{ a.descripcion }}</td>
+                <td>{{ a.centro }}</td>
+                <td>{{ a.almacen }}</td>
+                <td>{{ a.stock_sap }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+
+    <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-2 text-sm opacity-70">
+        <span>1-6 de 100</span>
+        <span>Filas</span>
+        <select class="select w-20"><option>12</option><option>24</option><option>48</option></select>
+      </div>
+      {% include 'core/partials/pagination.html' %}
+    </div>
+  </div>
+</div>
+{% endblock %}

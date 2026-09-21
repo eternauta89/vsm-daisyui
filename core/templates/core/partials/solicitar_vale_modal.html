@@ -1,0 +1,146 @@
+<dialog
+  id="solicitar_vale_modal"
+  class="modal"
+  x-data="{
+    tipoEntrega: 'EPP- Protección personal',
+    empresa: 'G001- Rio- Rioplatense',
+    almacen: 'Rioplatense',
+    centroCostos: '',
+    retirante: '',
+    producto: '',
+    unidades: 1,
+    productos: [],
+    observaciones: '',
+    get puedeAgregarProducto() { return this.producto !== '' && this.unidades >= 1 },
+    get puedeConfirmar() {
+      return this.tipoEntrega !== '' && this.empresa !== '' && this.almacen !== '' &&
+        this.centroCostos !== '' && this.retirante !== '' && this.productos.length > 0
+    },
+    agregarProducto() {
+      if (!this.puedeAgregarProducto) return
+      this.productos.push({ nombre: this.producto, unidades: this.unidades })
+      this.producto = ''
+      this.unidades = 1
+    },
+    quitarProducto(index) { this.productos.splice(index, 1) },
+    resetForm() {
+      this.tipoEntrega = 'EPP- Protección personal'
+      this.empresa = 'G001- Rio- Rioplatense'
+      this.almacen = 'Rioplatense'
+      this.centroCostos = ''
+      this.retirante = ''
+      this.producto = ''
+      this.unidades = 1
+      this.productos = []
+      this.observaciones = ''
+    },
+  }"
+  x-on:close="resetForm()"
+>
+  <form id="solicitar_vale_form" method="post" action="{% url 'core:crear-vale' %}" class="hidden">
+    {% csrf_token %}
+    <input type="hidden" name="tipo_entrega" x-bind:value="tipoEntrega" />
+    <input type="hidden" name="empresa" x-bind:value="empresa" />
+    <input type="hidden" name="almacen" x-bind:value="almacen" />
+    <input type="hidden" name="centro_costos" x-bind:value="centroCostos" />
+    <input type="hidden" name="retirante" x-bind:value="retirante" />
+    <input type="hidden" name="productos" x-bind:value="JSON.stringify(productos)" />
+    <input type="hidden" name="observaciones" x-bind:value="observaciones" />
+  </form>
+  <div class="modal-box w-full max-w-2xl overflow-hidden p-0">
+    <div class="bg-primary text-primary-content flex items-center justify-between px-7 py-6">
+      <h3 class="text-xl font-medium">Solicitar vale de salida de materiales</h3>
+      <form method="dialog">
+        <button type="submit" class="btn btn-circle btn-ghost text-primary-content text-[34px] leading-none font-normal" aria-label="Cerrar">
+          &times;
+        </button>
+      </form>
+    </div>
+
+    <div class="max-h-[70vh] overflow-y-auto px-7 py-5">
+      <div class="grid grid-cols-1 gap-x-7 gap-y-4 sm:grid-cols-2">
+        <fieldset class="fieldset p-0">
+          <label class="label">Tipo de entrega</label>
+          {% include 'core/partials/searchable_select.html' with field='tipoEntrega' name='tipo_entrega' placeholder='' options_js="['EPP- Protección personal', 'Herramientas', 'Insumos']" %}
+        </fieldset>
+
+        <fieldset class="fieldset p-0">
+          <label class="label">Empresa que representa</label>
+          {% include 'core/partials/searchable_select.html' with field='empresa' name='empresa' placeholder='' options_js="['G001- Rio- Rioplatense', 'G002- Norte']" %}
+        </fieldset>
+
+        <fieldset class="fieldset p-0">
+          <label class="label">Almacén</label>
+          {% include 'core/partials/searchable_select.html' with field='almacen' name='almacen' placeholder='' options_js="['Rioplatense', 'INC']" %}
+        </fieldset>
+
+        <fieldset class="fieldset p-0">
+          <label class="label">Centro de costos</label>
+          {% include 'core/partials/searchable_select.html' with field='centroCostos' name='centro_costos' placeholder='Selecciona un centro de costos' options_js="['123']" %}
+        </fieldset>
+      </div>
+
+      <p class="text-base-content/60 mt-5 text-xs font-medium tracking-wide">PERSONAS</p>
+      <div class="mt-3 grid grid-cols-1 gap-x-7 gap-y-1 sm:grid-cols-2">
+        <fieldset class="fieldset p-0">
+          <label class="label" for="solicitante">Solicitante</label>
+          <label class="input w-full">
+            <input id="solicitante" type="text" class="grow" value="Enrique Emilio Costantini" disabled />
+            {% include 'core/partials/icon.html' with name='lock' extra='size-4 opacity-60' %}
+          </label>
+          <p class="text-info label text-xs">Se completa con el usuario que inició sesión</p>
+        </fieldset>
+
+        <fieldset class="fieldset p-0">
+          <label class="label">Nombre del retirante</label>
+          {% include 'core/partials/searchable_select.html' with field='retirante' name='retirante' placeholder='Selecciona un retirante' options_js="['Leg:29369 - Juarez Bruno Tomas']" %}
+        </fieldset>
+      </div>
+
+      <p class="text-base-content/60 mt-5 text-xs font-medium tracking-wide">PRODUCTOS</p>
+      <div class="mt-3 flex flex-col items-end gap-3 sm:flex-row">
+        <fieldset class="fieldset w-full p-0">
+          <label class="label">Detalle del producto</label>
+          {% include 'core/partials/searchable_select.html' with field='producto' name='producto' placeholder='Nombre del producto o código' options_js="['Faja lumbar (EPP-6634)', 'Arnés de altura (EPP-7702)', 'Casco de seguridad (EPP-1842)']" %}
+        </fieldset>
+
+        <fieldset class="fieldset w-full max-w-[125px] p-0">
+          <label class="label" for="unidades">Unidades</label>
+          <input id="unidades" type="number" min="1" x-model.number="unidades" class="input w-full" />
+        </fieldset>
+
+        <button type="button" class="btn btn-outline gap-1" x-bind:disabled="!puedeAgregarProducto" x-on:click="agregarProducto()">
+          {% include 'core/partials/icon.html' with name='plus' extra='size-4' %}
+          Agregar
+        </button>
+      </div>
+
+      <ul x-show="productos.length > 0" class="border-base-300 mt-3 divide-y divide-base-300 overflow-hidden rounded-lg border">
+        <template x-for="(item, index) in productos" :key="index">
+          <li class="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+            <span x-text="item.nombre"></span>
+            <div class="flex items-center gap-3">
+              <span class="badge badge-sm badge-soft" x-text="item.unidades + ' uds'"></span>
+              <button type="button" class="btn btn-ghost btn-xs btn-circle text-base leading-none" x-on:click="quitarProducto(index)" aria-label="Quitar producto">
+                &times;
+              </button>
+            </div>
+          </li>
+        </template>
+      </ul>
+
+      <fieldset class="fieldset mt-5 p-0">
+        <label class="label" for="observaciones">Observaciones</label>
+        <textarea id="observaciones" class="textarea w-full" placeholder="Opcional" rows="3" x-model="observaciones"></textarea>
+      </fieldset>
+
+      <div class="modal-action">
+        <form method="dialog"><button type="submit" class="btn btn-ghost">Cancelar</button></form>
+        <button type="submit" form="solicitar_vale_form" class="btn btn-primary" x-bind:disabled="!puedeConfirmar">
+          Confirmar entrega
+        </button>
+      </div>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>

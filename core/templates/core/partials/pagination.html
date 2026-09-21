@@ -1,0 +1,29 @@
+<div class="join" x-data="{ page: 1, pages: [1, 2, '…', 20, 21] }">
+  <button
+    type="button"
+    class="join-item btn btn-sm"
+    aria-label="Página anterior"
+    x-bind:disabled="page <= 1"
+    x-on:click="page = Math.max(1, page - 1)"
+  >
+    {% include 'core/partials/icon.html' with name='chevron-left' extra='size-4' %}
+  </button>
+  <template x-for="(p, index) in pages" :key="index">
+    <button
+      type="button"
+      class="join-item btn btn-sm"
+      x-bind:class="{ 'btn-active': page === p, 'btn-disabled': p === '…' }"
+      x-text="p"
+      x-on:click="p !== '…' && (page = p)"
+    ></button>
+  </template>
+  <button
+    type="button"
+    class="join-item btn btn-sm"
+    aria-label="Página siguiente"
+    x-bind:disabled="page >= 21"
+    x-on:click="page = Math.min(21, page + 1)"
+  >
+    {% include 'core/partials/icon.html' with name='chevron-right' extra='size-4' %}
+  </button>
+</div>

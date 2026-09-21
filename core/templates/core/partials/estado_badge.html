@@ -1,0 +1,21 @@
+{% if estado == 'Pendiente' %}
+  <span class="badge badge-warning gap-1 text-black">
+    {% include 'core/partials/icon.html' with name='clock' extra='size-3.5' %}
+    Pendiente
+  </span>
+{% elif estado == 'Entregado' %}
+  <span class="badge badge-success gap-1 text-white">
+    {% include 'core/partials/icon.html' with name='check-circle-2' extra='size-3.5' %}
+    Entregado
+  </span>
+{% elif estado == 'No autorizada' %}
+  <span class="badge gap-1 border-none bg-[#dc362e] text-white">
+    {% include 'core/partials/icon.html' with name='ban' extra='size-3.5' %}
+    No autorizada
+  </span>
+{% elif estado == 'Error SAP' %}
+  <span class="badge gap-1 border-none bg-[#dc362e] text-white">
+    {% include 'core/partials/icon.html' with name='alert-triangle' extra='size-3.5' %}
+    Error SAP
+  </span>
+{% endif %}

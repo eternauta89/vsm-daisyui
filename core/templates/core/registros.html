@@ -1,0 +1,175 @@
+{% extends 'core/base.html' %}
+{% block page_title %}Registros{% endblock %}
+{% block header_title %}Registros{% endblock %}
+
+{% block content %}
+<div class="card bg-base-100 rounded-box border border-base-300 p-4 shadow-sm sm:p-6">
+  <form
+    method="get"
+    class="flex flex-col gap-3"
+    x-data="{
+      presetActivo: null,
+      aplicarPreset(key, dias) {
+        const hoy = new Date()
+        const desde = new Date(hoy)
+        desde.setDate(hoy.getDate() - dias)
+        this.$refs.desde.value = desde.toISOString().slice(0, 10)
+        this.$refs.hasta.value = hoy.toISOString().slice(0, 10)
+        this.presetActivo = key
+      },
+    }"
+  >
+    <input type="hidden" name="estado" value="{{ estado }}" />
+
+    <div class="flex flex-wrap items-end gap-3">
+      <label class="input w-full sm:w-auto sm:max-w-sm">
+        {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
+        <input type="search" name="q" class="grow" placeholder="Buscar por solicitante, retirante, VSM, o CC..." value="{{ q }}" data-autosubmit-empty />
+      </label>
+
+      <button type="submit" name="buscar" value="1" class="btn btn-primary">Buscar</button>
+
+      <div class="ml-auto">
+        <button type="button" class="btn btn-outline btn-primary gap-2" popovertarget="registros-filtros-panel" style="anchor-name: --registros-filtros-panel">
+          {% include 'core/partials/icon.html' with name='filter' extra='size-4' %}
+          Filtrar
+          {% include 'core/partials/icon.html' with name='chevron-down' extra='size-4' %}
+        </button>
+        <div
+          class="dropdown dropdown-end bg-base-200 text-base-content rounded-box z-1 mt-2 w-80 p-4 shadow-md"
+          popover="auto"
+          id="registros-filtros-panel"
+          style="position-anchor: --registros-filtros-panel"
+        >
+          <span class="text-base font-medium">Filtros</span>
+
+          <fieldset class="fieldset mt-2 p-0">
+            <label class="label" for="registros-tipo">Tipo de entrega</label>
+            <select id="registros-tipo" name="tipo" class="select w-full">
+              <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
+              <option value="EPP" {% if tipo == 'EPP' %}selected{% endif %}>EPP</option>
+              <option value="Insumos" {% if tipo == 'Insumos' %}selected{% endif %}>Insumos</option>
+              <option value="Indumentaria" {% if tipo == 'Indumentaria' %}selected{% endif %}>Indumentaria</option>
+            </select>
+          </fieldset>
+
+          <fieldset class="fieldset mt-3 p-0">
+            <label class="label">Filtro rápido</label>
+            <div class="flex gap-2">
+              <button type="button" class="btn btn-sm btn-primary" x-bind:class="presetActivo === 'hoy' ? '' : 'btn-outline'" x-on:click="aplicarPreset('hoy', 0)">Hoy</button>
+              <button type="button" class="btn btn-sm btn-primary" x-bind:class="presetActivo === 'semana' ? '' : 'btn-outline'" x-on:click="aplicarPreset('semana', 7)">Última semana</button>
+              <button type="button" class="btn btn-sm btn-primary" x-bind:class="presetActivo === 'mes' ? '' : 'btn-outline'" x-on:click="aplicarPreset('mes', 30)">Último mes</button>
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset mt-3 p-0">
+            <label class="label" for="registros-desde">Fechas desde</label>
+            <label class="input w-full" for="registros-desde">
+              {% include 'core/partials/icon.html' with name='calendar' extra='size-4 opacity-60' %}
+              <input id="registros-desde" x-ref="desde" x-on:input="presetActivo = null" type="date" name="desde" class="grow" value="{{ desde }}" />
+            </label>
+          </fieldset>
+
+          <fieldset class="fieldset mt-2 p-0">
+            <label class="label" for="registros-hasta">Fechas hasta</label>
+            <label class="input w-full" for="registros-hasta">
+              {% include 'core/partials/icon.html' with name='calendar' extra='size-4 opacity-60' %}
+              <input id="registros-hasta" x-ref="hasta" x-on:input="presetActivo = null" type="date" name="hasta" class="grow" value="{{ hasta }}" />
+            </label>
+          </fieldset>
+
+          <button type="submit" name="buscar" value="1" class="btn btn-primary mt-4 w-full">Aplicar</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div role="tablist" class="tabs tabs-box mt-4 w-fit">
+    {% for t in estado_tabs %}
+      <a
+        href="?estado={{ t.key }}"
+        role="tab"
+        class="tab {% if estado == t.key %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}"
+      >
+        {{ t.label }} ({{ t.count }})
+      </a>
+    {% endfor %}
+  </div>
+
+  {% if filtros_aplicados %}
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      {% for filtro in filtros_aplicados %}
+        <span class="badge badge-soft gap-1 py-4">
+          {{ filtro.label }}
+          <a href="?{{ filtro.quitar_url }}" class="text-base leading-none opacity-70 hover:opacity-100" aria-label="Quitar filtro">&times;</a>
+        </span>
+      {% endfor %}
+      <a href="?{{ quitar_todos_url }}" class="link link-hover text-sm">Limpiar todo</a>
+    </div>
+  {% endif %}
+
+  <div class="mt-4 max-h-[520px] max-w-full overflow-auto rounded-box border border-base-300">
+    <table class="table table-sm">
+      <thead class="bg-base-100 sticky top-0 z-10">
+        <tr>
+          {% for column in columns %}<th>{{ column }}</th>{% endfor %}
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if not registros %}
+          <tr>
+            <td colspan="9" class="p-0">
+              <div class="flex flex-col items-center gap-2 px-6 py-12 text-center">
+                {% include 'core/partials/icon.html' with name='search-x' extra='text-base-content/30 size-8' %}
+                <p class="font-medium">No se encontraron registros</p>
+                <p class="text-base-content/60 max-w-sm text-sm">
+                  No hay resultados para "{{ busqueda_aplicada|default:'esta búsqueda' }}" con el estado y rango de
+                  fechas seleccionados. Probá con otro VSM, retirante o CC, o ajustá los filtros.
+                </p>
+              </div>
+            </td>
+          </tr>
+        {% endif %}
+        {% for registro in registros %}
+          <tr class="hover:bg-base-200">
+            <td>
+              <button type="button" class="link link-hover font-medium text-base-content/70" onclick="window.abrirVerMateriales('{{ registro.retirante|escapejs }}', '{{ registro.legajo|escapejs }}', '{{ registro.estado|escapejs }}')">
+                {{ registro.vsm }}
+              </button>
+            </td>
+            <td><span class="badge badge-accent badge-sm">{{ registro.tipo }}</span></td>
+            <td>
+              <div class="font-medium">{{ registro.retirante }}</div>
+              <div class="text-xs opacity-60">{{ registro.legajo }}</div>
+            </td>
+            <td>{{ registro.solicitante }}</td>
+            <td>
+              <div>{{ registro.almacen }}</div>
+              <div class="text-xs opacity-60">{{ registro.facturado }}</div>
+            </td>
+            <td>{{ registro.cc }}</td>
+            <td>{{ registro.fecha }}</td>
+            <td>{% include 'core/partials/estado_badge.html' with estado=registro.estado %}</td>
+            <td>
+              <button type="button" class="btn btn-ghost gap-1" onclick="window.abrirVerMateriales('{{ registro.retirante|escapejs }}', '{{ registro.legajo|escapejs }}', '{{ registro.estado|escapejs }}')">
+                {% include 'core/partials/icon.html' with name='file-text' extra='size-4' %}
+                Ver informe de pañol
+              </button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex items-center gap-2 text-sm opacity-70">
+      <span>1-6 de 100</span>
+      <span>Filas</span>
+      <select class="select w-20"><option>12</option><option>24</option><option>48</option></select>
+    </div>
+    {% include 'core/partials/pagination.html' %}
+  </div>
+</div>
+{% endblock %}

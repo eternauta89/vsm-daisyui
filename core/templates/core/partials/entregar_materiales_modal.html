@@ -1,0 +1,167 @@
+<dialog
+  id="entregar_materiales_modal"
+  class="modal"
+  x-data="{
+    step: 'cantidades',
+    resultado: null,
+    items: [
+      {% for item in entrega_items %}{ nombre: '{{ item.nombre|escapejs }}', solicitado: {{ item.solicitado }}, entregado: {{ item.entregado }} },{% endfor %}
+    ],
+    actualizarCantidad(index, delta) {
+      const item = this.items[index]
+      item.entregado = Math.min(item.solicitado, Math.max(0, item.entregado + delta))
+    },
+    reset() { this.step = 'cantidades'; this.resultado = null },
+  }"
+  x-on:close="reset()"
+>
+  <form id="entregar_materiales_form" method="post" action="" class="hidden">
+    {% csrf_token %}
+    <input type="hidden" name="resultado" x-bind:value="resultado" />
+  </form>
+  <div class="modal-box flex h-[600px] w-full max-w-2xl flex-col overflow-hidden p-0">
+    <div class="bg-primary text-primary-content flex shrink-0 items-start justify-between px-6 py-4">
+      <div>
+        <p class="text-xs tracking-wide opacity-80">ENTREGA VALE <span id="entregar-vsm"></span></p>
+        <p class="text-lg font-medium" id="entregar-retirante"></p>
+        <p class="text-sm opacity-80" id="entregar-legajo"></p>
+      </div>
+      <button
+        type="button"
+        class="btn btn-circle btn-ghost text-primary-content text-[34px] leading-none font-normal"
+        aria-label="Cerrar"
+        onclick="document.getElementById('entregar_materiales_modal').close()"
+      >
+        &times;
+      </button>
+    </div>
+
+    <div class="shrink-0 px-6 pt-4">
+      <ul class="steps steps-horizontal w-full">
+        <li class="step" x-bind:class="{ 'step-primary': true }">Cantidades</li>
+        <li class="step" x-bind:class="{ 'step-primary': step === 'tarjeta' || step === 'confirmar' }">Tarjeta</li>
+        <li class="step" x-bind:class="{ 'step-primary': step === 'confirmar' }">Confirmar</li>
+      </ul>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-6 py-5">
+      <div x-show="step === 'cantidades'">
+        <p class="text-base-content/70 text-sm">
+          Indicá la cantidad realmente entregada. Puede ser menor a la solicitada, nunca mayor.
+        </p>
+        <ul class="mt-4 space-y-4">
+          <template x-for="(item, index) in items" :key="index">
+            <li class="flex items-center justify-between gap-4">
+              <span class="text-sm font-medium" x-text="item.nombre"></span>
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  class="btn btn-circle btn-outline"
+                  x-bind:disabled="item.entregado <= 0"
+                  x-on:click="actualizarCantidad(index, -1)"
+                >
+                  {% include 'core/partials/icon.html' with name='minus' extra='size-3' %}
+                </button>
+                <div class="text-center">
+                  <p class="text-sm font-semibold" x-text="item.entregado"></p>
+                  <p class="text-base-content/50 text-xs">de <span x-text="item.solicitado"></span></p>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-circle btn-outline"
+                  x-bind:disabled="item.entregado >= item.solicitado"
+                  x-on:click="actualizarCantidad(index, 1)"
+                >
+                  {% include 'core/partials/icon.html' with name='plus' extra='size-3' %}
+                </button>
+              </div>
+            </li>
+          </template>
+        </ul>
+      </div>
+
+      <div x-show="step === 'tarjeta'" class="flex h-full flex-col items-center justify-center text-center">
+        <div class="bg-primary text-primary-content flex size-16 items-center justify-center rounded-full">
+          {% include 'core/partials/icon.html' with name='credit-card' extra='size-7' %}
+        </div>
+        <h4 class="mt-4 text-base font-semibold">Acercá la tarjeta al lector</h4>
+        <p class="text-base-content/60 mt-2 max-w-sm text-sm">
+          El retirante debe acercar su tarjeta de identificación al lector para confirmar su identidad y la
+          conformidad con los materiales.
+        </p>
+      </div>
+
+      <div x-show="step === 'confirmar' && resultado === 'success'" class="flex h-full flex-col items-center justify-center text-center">
+        <h4 class="text-base font-semibold">Entregado</h4>
+        <div class="bg-success mt-4 flex size-16 items-center justify-center rounded-full text-white">
+          {% include 'core/partials/icon.html' with name='check-circle-2' extra='size-8' %}
+        </div>
+        <span class="badge badge-primary mt-4">Sap. 498223256</span>
+      </div>
+
+      <div x-show="step === 'confirmar' && resultado === 'error'" class="flex h-full flex-col items-center justify-center text-center">
+        <h4 class="text-base font-semibold">Tarjeta rechazada</h4>
+        <div class="bg-error mt-4 flex size-16 items-center justify-center rounded-full text-white">
+          {% include 'core/partials/icon.html' with name='x-circle' extra='size-8' %}
+        </div>
+        <p class="text-base-content/60 mt-3 max-w-sm text-sm">
+          Tarjeta no autorizada para esta entrega. Verifique el legajo del retirante.
+        </p>
+        <span class="badge badge-error mt-4 gap-1 text-white">
+          {% include 'core/partials/icon.html' with name='ban' extra='size-3.5' %}
+          No autorizada
+        </span>
+        <p class="text-base-content/50 mt-2 max-w-sm text-xs">
+          El vale queda registrado como No autorizada. Podés reintentar la entrega apretando "Entregar" en esa misma
+          fila.
+        </p>
+      </div>
+    </div>
+
+    <div class="border-base-300 flex shrink-0 items-center justify-between gap-4 border-t px-6 py-4">
+      <div x-show="step === 'cantidades'" class="contents">
+        <form method="dialog"><button type="submit" class="btn btn-ghost w-56">Cancelar</button></form>
+        <button type="button" class="btn btn-primary w-56 gap-2" x-on:click="step = 'tarjeta'">
+          Confirmar entrega
+          {% include 'core/partials/icon.html' with name='arrow-right' extra='size-4' %}
+        </button>
+      </div>
+
+      <div x-show="step === 'tarjeta'" class="contents">
+        <button type="button" class="link link-hover shrink-0 text-sm whitespace-nowrap" x-on:click="step = 'cantidades'">
+          Volver atrás
+        </button>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            class="btn btn-outline btn-error w-56"
+            x-on:click="resultado = 'error'; step = 'confirmar'"
+          >
+            Tarjeta rechazada
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary w-56 gap-2"
+            x-on:click="resultado = 'success'; step = 'confirmar'"
+          >
+            {% include 'core/partials/icon.html' with name='check-circle-2' extra='size-4' %}
+            Tarjeta Confirmada
+          </button>
+        </div>
+      </div>
+
+      <div x-show="step === 'confirmar' && resultado === 'success'" class="contents">
+        <button type="button" class="btn btn-outline btn-secondary w-56 gap-2" onclick="window.print()">
+          {% include 'core/partials/icon.html' with name='printer' extra='size-4' %}
+          Imprimir
+        </button>
+        <button type="submit" form="entregar_materiales_form" class="btn btn-primary w-56">Listo</button>
+      </div>
+
+      <div x-show="step === 'confirmar' && resultado === 'error'" class="contents">
+        <button type="submit" form="entregar_materiales_form" class="btn btn-primary ml-auto w-56">Cerrar</button>
+      </div>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
