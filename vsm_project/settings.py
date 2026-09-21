@@ -28,6 +28,12 @@ DEBUG = os.environ.get('VERCEL') != '1'
 
 ALLOWED_HOSTS = ['*']
 
+# Vercel terminates TLS at its edge and forwards over HTTP, so Django needs
+# this to know the original request was HTTPS (otherwise CSRF's Origin check
+# mismatches https:// against the http:// it infers, and every POST 403s).
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
+
 
 # Application definition
 

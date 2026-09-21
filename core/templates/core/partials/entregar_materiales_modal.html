@@ -133,14 +133,14 @@
         <div class="flex gap-2">
           <button
             type="button"
-            class="btn btn-outline btn-error w-56"
+            class="btn btn-outline btn-error"
             x-on:click="resultado = 'error'; step = 'confirmar'"
           >
             Tarjeta rechazada
           </button>
           <button
             type="button"
-            class="btn btn-primary w-56 gap-2"
+            class="btn btn-primary gap-2"
             x-on:click="resultado = 'success'; step = 'confirmar'"
           >
             {% include 'core/partials/icon.html' with name='check-circle-2' extra='size-4' %}
@@ -149,16 +149,16 @@
         </div>
       </div>
 
-      <div x-show="step === 'confirmar' && resultado === 'success'" class="contents">
-        <button type="button" class="btn btn-outline btn-secondary w-56 gap-2" onclick="window.print()">
+      <div x-show="step === 'confirmar' && resultado === 'success'" class="ml-auto flex items-center gap-2">
+        <button type="button" class="btn btn-outline btn-secondary gap-2" onclick="window.print()">
           {% include 'core/partials/icon.html' with name='printer' extra='size-4' %}
           Imprimir
         </button>
-        <button type="submit" form="entregar_materiales_form" class="btn btn-primary w-56">Listo</button>
+        <button type="submit" form="entregar_materiales_form" class="btn btn-primary">Listo</button>
       </div>
 
       <div x-show="step === 'confirmar' && resultado === 'error'" class="contents">
-        <button type="submit" form="entregar_materiales_form" class="btn btn-primary ml-auto w-56">Cerrar</button>
+        <button type="submit" form="entregar_materiales_form" class="btn btn-primary ml-auto">Cerrar</button>
       </div>
     </div>
   </div>
