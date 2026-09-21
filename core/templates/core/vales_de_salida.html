@@ -4,7 +4,16 @@
 
 {% block content %}
 <div class="card bg-base-100 rounded-box border border-base-300 p-4 shadow-sm sm:p-6">
+  <div class="bg-base-200 border-base-300 rounded-lg border p-4">
+    <p class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
+      {% include 'core/partials/icon.html' with name='file-text' extra='size-4' %}
+      Pendientes
+    </p>
+    <p class="text-base-content/60 mt-1 text-xs">Validar la entrega o recepción de vales pendientes.</p>
+  </div>
+
   <div
+    class="mt-4"
     x-data="{ filters: [], tipoEntrega: 'Todos', retirante: 'Todos', solicitante: 'Todos', empresa: 'Todas', centroCostos: 'Todos',
       defaults: { tipoEntrega: ['Tipo de entrega', 'Todos'], retirante: ['Retirante', 'Todos'], solicitante: ['Solicitante', 'Todos'], empresa: ['Empresa', 'Todas'], centroCostos: ['Centro de costos', 'Todos'] },
       aplicar() {

@@ -4,9 +4,17 @@
 
 {% block content %}
 <div class="card bg-base-100 rounded-box border border-base-300 p-4 shadow-sm sm:p-6">
+  <div class="bg-base-200 border-base-300 rounded-lg border p-4">
+    <p class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
+      {% include 'core/partials/icon.html' with name='clock' extra='size-4' %}
+      Registros VSM
+    </p>
+    <p class="text-base-content/60 mt-1 text-xs">Consultar registros pasados por fecha, solicitante o producto.</p>
+  </div>
+
   <form
     method="get"
-    class="flex flex-col gap-3"
+    class="mt-4 flex flex-col gap-3"
     x-data="{
       presetActivo: null,
       aplicarPreset(key, dias) {

@@ -269,14 +269,20 @@ def registros(request):
             qs.pop(clave, None)
         return qs.urlencode()
 
+    def dia_mes_anio(fecha_iso):
+        try:
+            return datetime.strptime(fecha_iso, '%Y-%m-%d').strftime('%d/%m/%Y')
+        except ValueError:
+            return fecha_iso
+
     filtros_aplicados = []
     if buscado:
         if tipo != 'todos':
             filtros_aplicados.append({'label': f'Tipo: {tipo}', 'quitar_url': sin_params('tipo')})
         if fecha_desde:
-            filtros_aplicados.append({'label': f'Desde: {fecha_desde}', 'quitar_url': sin_params('desde')})
+            filtros_aplicados.append({'label': f'Desde: {dia_mes_anio(fecha_desde)}', 'quitar_url': sin_params('desde')})
         if fecha_hasta:
-            filtros_aplicados.append({'label': f'Hasta: {fecha_hasta}', 'quitar_url': sin_params('hasta')})
+            filtros_aplicados.append({'label': f'Hasta: {dia_mes_anio(fecha_hasta)}', 'quitar_url': sin_params('hasta')})
 
     context = {
         'active_page': 'registros',

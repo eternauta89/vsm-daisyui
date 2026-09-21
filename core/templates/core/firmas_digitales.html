@@ -4,7 +4,15 @@
 
 {% block content %}
 <div class="card bg-base-100 rounded-box border border-base-300 p-4 shadow-sm sm:p-6">
-  <form method="get" class="flex w-full gap-3 sm:max-w-md">
+  <div class="bg-base-200 border-base-300 rounded-lg border p-4">
+    <p class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
+      {% include 'core/partials/icon.html' with name='file-signature' extra='size-4' %}
+      Firmas pendientes
+    </p>
+    <p class="text-base-content/60 mt-1 text-xs">Revisar vales EPP con firmas pendientes de captura.</p>
+  </div>
+
+  <form method="get" class="mt-4 flex w-full gap-3 sm:max-w-md">
     <label class="input w-full">
       {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
       <input type="search" name="q" class="grow" placeholder="Buscar por solicitante, retirante, VSM, o CC..." value="{{ q }}" data-autosubmit-empty />
@@ -53,7 +61,7 @@
             <td>
               <button
                 type="button"
-                class="btn btn-primary gap-1"
+                class="btn gap-1 border-none {% if s.firmado %}btn-disabled bg-base-300 text-base-content/40{% else %}bg-[#880d27] text-white hover:bg-[#6e0a1f]{% endif %}"
                 {% if s.firmado %}disabled{% endif %}
                 onclick="window.abrirCapturaFirma('{{ s.vsm|escapejs }}', '{{ s.retirante|escapejs }}', '{{ s.legajo|escapejs }}', '{% url 'core:firmar-solicitud' vsm=s.vsm %}')"
               >
