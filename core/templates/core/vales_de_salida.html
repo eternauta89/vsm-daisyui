@@ -86,19 +86,28 @@
           <button type="button" class="btn btn-primary mt-4 w-full" popovertarget="filtros-panel" x-on:click="aplicar()">Aplicar</button>
         </div>
 
-        <button type="button" class="btn btn-primary gap-2" onclick="document.getElementById('solicitar_vale_modal').showModal()">
+        <button type="button" class="btn btn-primary hidden gap-2 md:inline-flex" onclick="document.getElementById('solicitar_vale_modal').showModal()">
           {% include 'core/partials/icon.html' with name='plus' extra='size-4' %}
           Nuevo VSM
         </button>
       </div>
     </div>
 
-    <div role="tablist" class="tabs tabs-box mt-4 w-fit">
+    <button
+      type="button"
+      class="btn btn-primary fixed right-5 bottom-5 z-30 gap-2 shadow-lg md:hidden"
+      onclick="document.getElementById('solicitar_vale_modal').showModal()"
+    >
+      {% include 'core/partials/icon.html' with name='plus' extra='size-4' %}
+      Nuevo VSM
+    </button>
+
+    <div role="tablist" class="tabs tabs-box bg-base-200 sticky top-16 z-20 mt-4 w-full flex-nowrap overflow-x-auto md:static md:w-fit md:overflow-visible">
       {% for tab in tabs %}
         <a
           href="?tab={{ tab.key }}"
           role="tab"
-          class="tab {% if active_tab == tab.key %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}"
+          class="tab shrink-0 {% if active_tab == tab.key %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}"
         >
           {{ tab.label }} ({{ tab.count }})
         </a>
@@ -118,9 +127,88 @@
     </div>
   </div>
 
-  <div class="mt-4 max-h-[520px] max-w-full overflow-auto rounded-box border border-base-300">
+  <div class="mt-4 space-y-3 md:hidden">
+    {% if not vales %}
+      <div class="border-base-300 flex flex-col items-center gap-2 rounded-box border px-6 py-12 text-center">
+        {% include 'core/partials/icon.html' with name='search-x' extra='text-base-content/30 size-8' %}
+        <p class="font-medium">No se encontraron vales</p>
+        <p class="text-base-content/60 max-w-sm text-sm">
+          No hay resultados para "{{ busqueda_aplicada }}" en esta pestaña. Probá con otro VSM, retirante, solicitante o CC.
+        </p>
+      </div>
+    {% endif %}
+    {% for vale in vales %}
+      <div
+        class="vsm-mobile-card rounded-box border-l-4 p-4 shadow-sm {% if vale.estado == 'Pendiente' %}border-warning{% elif vale.estado == 'Entregado' %}border-success{% else %}border-[#dc362e]{% endif %}"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1">
+            <button type="button" class="link link-hover font-medium" onclick="window.abrirVerMateriales('{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{{ vale.estado|escapejs }}')">
+              {{ vale.vsm }}
+            </button>
+            <span class="badge badge-accent badge-sm">{{ vale.tipo }}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            {% include 'core/partials/estado_badge.html' with estado=vale.estado %}
+            <button
+              type="button"
+              class="btn btn-ghost btn-square btn-sm hover:bg-black/10"
+              aria-label="Más acciones"
+              popovertarget="acciones-vale-m-{{ forloop.counter }}"
+              style="anchor-name: --acciones-vale-m-{{ forloop.counter }}"
+            >
+              {% include 'core/partials/icon.html' with name='more-vertical' extra='size-4' %}
+            </button>
+            <ul
+              class="dropdown dropdown-end menu bg-base-100 text-base-content rounded-box z-1 mt-2 w-48 p-2 shadow-md"
+              popover="auto"
+              id="acciones-vale-m-{{ forloop.counter }}"
+              style="position-anchor: --acciones-vale-m-{{ forloop.counter }}"
+            >
+              <li><button type="button" onclick="window.abrirVerMateriales('{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{{ vale.estado|escapejs }}')">{% include 'core/partials/icon.html' with name='eye' extra='size-4' %}Ver comprobante</button></li>
+              <li><button type="button" onclick="window.print()">{% include 'core/partials/icon.html' with name='printer' extra='size-4' %}Imprimir</button></li>
+              {% if vale.estado != 'Entregado' %}
+                <li><button type="button" onclick="document.getElementById('solicitar_vale_modal').showModal()">{% include 'core/partials/icon.html' with name='pencil' extra='size-4' %}Editar vale</button></li>
+              {% endif %}
+              <li><button type="button" class="text-error">{% include 'core/partials/icon.html' with name='trash-2' extra='size-4' %}Borrar comprobante</button></li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="vsm-mobile-card-muted mt-3 text-xs">RETIRA</p>
+        <p class="font-medium">{{ vale.retirante }}</p>
+        <p class="vsm-mobile-card-muted text-xs">{{ vale.legajo }}</p>
+
+        <p class="vsm-mobile-card-muted mt-2 text-xs">
+          SOLICITA · {{ vale.solicitante }} · {{ vale.fecha }}
+        </p>
+
+        <div class="vsm-mobile-card-divider my-3 border-t"></div>
+
+        <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center gap-2">
+            <span>{{ vale.almacen }}</span>
+            <span class="vsm-mobile-card-muted">{{ vale.facturado }}</span>
+          </div>
+          <span>{{ vale.cc }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-success mt-3 w-full gap-2 text-white active:!bg-[#009a6e]"
+          {% if vale.estado == 'Entregado' %}disabled{% endif %}
+          onclick="window.abrirEntregarMateriales('{{ vale.vsm|escapejs }}', '{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{% url 'core:entregar-vale' vsm=vale.vsm %}')"
+        >
+          {% include 'core/partials/icon.html' with name='check' extra='size-4' %}
+          Entregar
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-4 hidden max-w-full overflow-x-auto overscroll-contain rounded-box border border-base-300 md:block">
     <table class="table table-sm">
-      <thead class="bg-base-100 sticky top-0 z-10">
+      <thead>
         <tr>
           {% for column in columns %}<th>{{ column }}</th>{% endfor %}
           <th>ACCIONES</th>
@@ -165,7 +253,7 @@
               <div class="flex items-center gap-1">
                 <button
                   type="button"
-                  class="btn btn-neutral"
+                  class="btn btn-success text-white active:!bg-[#009a6e]"
                   {% if vale.estado == 'Entregado' %}disabled{% endif %}
                   onclick="window.abrirEntregarMateriales('{{ vale.vsm|escapejs }}', '{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{% url 'core:entregar-vale' vsm=vale.vsm %}')"
                 >
@@ -217,7 +305,7 @@
       {% endif %}
       <span>Filas</span>
       <select name="por_pagina" class="select w-20" onchange="this.form.requestSubmit()">
-        <option value="10" {% if por_pagina == 10 %}selected{% endif %}>10</option>
+        <option value="8" {% if por_pagina == 8 %}selected{% endif %}>8</option>
         <option value="25" {% if por_pagina == 25 %}selected{% endif %}>25</option>
         <option value="50" {% if por_pagina == 50 %}selected{% endif %}>50</option>
       </select>

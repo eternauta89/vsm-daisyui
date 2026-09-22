@@ -30,7 +30,7 @@
     <input type="hidden" name="estado" value="{{ estado }}" />
 
     <div class="flex flex-wrap items-end gap-3">
-      <label class="input w-full sm:w-auto sm:max-w-sm">
+      <label class="input w-full sm:max-w-md">
         {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
         <input type="search" name="q" class="grow" placeholder="Buscar por solicitante, retirante, VSM, o CC..." value="{{ q }}" data-autosubmit-empty />
       </label>
@@ -92,12 +92,12 @@
     </div>
   </form>
 
-  <div role="tablist" class="tabs tabs-box mt-4 w-fit">
+  <div role="tablist" class="tabs tabs-box bg-base-200 sticky top-16 z-20 mt-4 w-full flex-nowrap overflow-x-auto md:static md:w-fit md:overflow-visible">
     {% for t in estado_tabs %}
       <a
         href="?estado={{ t.key }}"
         role="tab"
-        class="tab {% if estado == t.key %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}"
+        class="tab shrink-0 {% if estado == t.key %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}"
       >
         {{ t.label }} ({{ t.count }})
       </a>
@@ -116,9 +116,59 @@
     </div>
   {% endif %}
 
-  <div class="mt-4 max-h-[520px] max-w-full overflow-auto rounded-box border border-base-300">
+  <div class="mt-4 space-y-3 md:hidden">
+    {% if not registros %}
+      <div class="border-base-300 flex flex-col items-center gap-2 rounded-box border px-6 py-12 text-center">
+        {% include 'core/partials/icon.html' with name='search-x' extra='text-base-content/30 size-8' %}
+        <p class="font-medium">No se encontraron registros</p>
+        <p class="text-base-content/60 max-w-sm text-sm">
+          No hay resultados para "{{ busqueda_aplicada|default:'esta búsqueda' }}" con el estado y rango de fechas seleccionados. Probá con otro VSM, retirante o CC, o ajustá los filtros.
+        </p>
+      </div>
+    {% endif %}
+    {% for registro in registros %}
+      <div
+        class="vsm-mobile-card rounded-box border-l-4 p-4 shadow-sm {% if registro.estado == 'Pendiente' %}border-warning{% elif registro.estado == 'Entregado' %}border-success{% else %}border-[#dc362e]{% endif %}"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1">
+            <button type="button" class="link link-hover font-medium" onclick="window.abrirVerMateriales('{{ registro.retirante|escapejs }}', '{{ registro.legajo|escapejs }}', '{{ registro.estado|escapejs }}')">
+              {{ registro.vsm }}
+            </button>
+            <span class="badge badge-accent badge-sm">{{ registro.tipo }}</span>
+          </div>
+          {% include 'core/partials/estado_badge.html' with estado=registro.estado %}
+        </div>
+
+        <p class="vsm-mobile-card-muted mt-3 text-xs">RETIRA</p>
+        <p class="font-medium">{{ registro.retirante }}</p>
+        <p class="vsm-mobile-card-muted text-xs">{{ registro.legajo }}</p>
+
+        <p class="vsm-mobile-card-muted mt-2 text-xs">
+          SOLICITA · {{ registro.solicitante }} · {{ registro.fecha }}
+        </p>
+
+        <div class="vsm-mobile-card-divider my-3 border-t"></div>
+
+        <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center gap-2">
+            <span>{{ registro.almacen }}</span>
+            <span class="vsm-mobile-card-muted">{{ registro.facturado }}</span>
+          </div>
+          <span>{{ registro.cc }}</span>
+        </div>
+
+        <button type="button" class="btn btn-outline mt-3 w-full gap-2" onclick="window.abrirVerMateriales('{{ registro.retirante|escapejs }}', '{{ registro.legajo|escapejs }}', '{{ registro.estado|escapejs }}')">
+          {% include 'core/partials/icon.html' with name='file-text' extra='size-4' %}
+          Ver informe de pañol
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-4 hidden max-w-full overflow-x-auto overscroll-contain rounded-box border border-base-300 md:block">
     <table class="table table-sm">
-      <thead class="bg-base-100 sticky top-0 z-10">
+      <thead>
         <tr>
           {% for column in columns %}<th>{{ column }}</th>{% endfor %}
           <th>ACCIONES</th>

@@ -27,10 +27,10 @@
     <button type="submit" name="buscar" value="1" class="btn btn-primary">Buscar</button>
   </form>
 
-  <div class="mt-4 max-h-[520px] max-w-full overflow-auto rounded-box border border-base-300">
+  <div class="mt-4 max-w-full overflow-x-auto overscroll-contain rounded-box border border-base-300">
     {% if active_tab == 'por-centro' %}
       <table class="table table-sm">
-        <thead class="bg-base-100 sticky top-0 z-10"><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>MATERIALES ASIGNADOS</th><th>ACCIÓN</th></tr></thead>
+        <thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>MATERIALES ASIGNADOS</th><th>ACCIÓN</th></tr></thead>
         <tbody>
           {% if not centros %}
             <tr><td colspan="4" class="p-0">
@@ -58,7 +58,7 @@
       </table>
     {% else %}
       <table class="table table-sm">
-        <thead class="bg-base-100 sticky top-0 z-10"><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>CLASE SAP</th><th>CENTRO</th><th>ACCIÓN</th></tr></thead>
+        <thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>CLASE SAP</th><th>CENTRO</th><th>ACCIÓN</th></tr></thead>
         <tbody>
           {% if not materiales %}
             <tr><td colspan="5" class="p-0">

@@ -21,16 +21,16 @@
       })()
     </script>
   </head>
-  <body class="min-h-screen bg-base-200">
-    <div class="drawer lg:drawer-open">
+  <body class="min-h-screen overflow-x-hidden overscroll-none bg-base-200">
+    <div class="drawer">
       <input id="main-menu-drawer" type="checkbox" class="drawer-toggle" />
 
       <div class="drawer-content min-h-screen bg-base-200">
-        <header class="navbar bg-primary text-primary-content px-4 sm:px-6">
+        <header class="navbar bg-primary text-primary-content sticky top-0 z-40 px-4 sm:px-6">
           <div class="flex-1">
             <label
               for="main-menu-drawer"
-              class="btn btn-ghost btn-square drawer-button text-primary-content hover:bg-black/10 border-transparent hover:border-transparent lg:hidden"
+              class="btn btn-ghost btn-square drawer-button text-primary-content hover:bg-black/10 border-transparent hover:border-transparent"
               aria-label="Abrir menú"
             >
               {% include 'core/partials/icon.html' with name='menu' %}
@@ -97,7 +97,7 @@
               <p class="text-lg font-semibold leading-tight">Rioplatense</p>
               <p class="text-xs tracking-wide opacity-80">FRIGORÍFICO</p>
             </div>
-            <label for="main-menu-drawer" class="cursor-pointer lg:hidden" aria-label="Cerrar menú">
+            <label for="main-menu-drawer" class="cursor-pointer" aria-label="Cerrar menú">
               {% include 'core/partials/icon.html' with name='x' extra='size-5' %}
             </label>
           </div>

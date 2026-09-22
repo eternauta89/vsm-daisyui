@@ -89,3 +89,26 @@
   --depth: 0;
   --noise: 0;
 }
+
+/* Mobile card rows (Vales de salida, Registros): white in light mode, the
+   same dark neutral used elsewhere in dark mode. */
+.vsm-mobile-card {
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
+}
+[data-theme="dark"] .vsm-mobile-card {
+  background-color: var(--color-neutral);
+  color: var(--color-neutral-content);
+}
+.vsm-mobile-card-muted {
+  color: color-mix(in oklch, currentColor 60%, transparent);
+}
+
+/* Pressed state for the golden/primary buttons across the app. */
+.btn-primary:active:not(:disabled):not(.btn-disabled) {
+  background-color: #604e35 !important;
+  border-color: #604e35 !important;
+}
+.vsm-mobile-card-divider {
+  border-color: color-mix(in oklch, currentColor 20%, transparent);
+}

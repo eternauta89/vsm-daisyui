@@ -137,11 +137,11 @@ def vales_de_salida(request):
     vales_filtrados = filtra_vales(get_vales(tab), busqueda)
 
     try:
-        por_pagina = int(request.GET.get('por_pagina', 10))
+        por_pagina = int(request.GET.get('por_pagina', 8))
     except ValueError:
-        por_pagina = 10
-    if por_pagina not in (10, 25, 50):
-        por_pagina = 10
+        por_pagina = 8
+    if por_pagina not in (8, 25, 50):
+        por_pagina = 8
 
     paginator = Paginator(vales_filtrados, por_pagina)
     page_obj = paginator.get_page(request.GET.get('page', 1))
