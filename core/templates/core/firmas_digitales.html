@@ -17,7 +17,7 @@
       {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
       <input type="search" name="q" class="grow" placeholder="Buscar por solicitante, retirante, VSM, o CC..." value="{{ q }}" data-autosubmit-empty />
     </label>
-    <button type="submit" name="buscar" value="1" class="btn btn-primary">Buscar</button>
+    <button type="submit" name="buscar" value="1" class="btn btn-neutral">Buscar</button>
   </form>
 
   <div class="mt-4 max-w-full overflow-x-auto overscroll-contain rounded-box border border-base-300">
@@ -61,7 +61,7 @@
             <td>
               <button
                 type="button"
-                class="btn gap-1 border-none {% if s.firmado %}btn-disabled bg-base-300 text-base-content/40{% else %}bg-[#880d27] text-white hover:bg-[#6e0a1f]{% endif %}"
+                class="btn btn-neutral gap-1"
                 {% if s.firmado %}disabled{% endif %}
                 onclick="window.abrirCapturaFirma('{{ s.vsm|escapejs }}', '{{ s.retirante|escapejs }}', '{{ s.legajo|escapejs }}', '{% url 'core:firmar-solicitud' vsm=s.vsm %}')"
               >

@@ -24,7 +24,7 @@
       {% include 'core/partials/icon.html' with name='search' extra='size-4 opacity-60' %}
       <input type="search" name="q" class="grow" placeholder="Buscar articulo por código o descripción..." value="{{ q }}" data-autosubmit-empty />
     </label>
-    <button type="submit" name="buscar" value="1" class="btn btn-primary">Buscar</button>
+    <button type="submit" name="buscar" value="1" class="btn btn-neutral">Buscar</button>
   </form>
 
   <div class="mt-4 max-w-full overflow-x-auto overscroll-contain rounded-box border border-base-300">
@@ -47,7 +47,7 @@
               <td>{{ c.nombre }}</td>
               <td><span class="badge badge-info badge-sm text-white">{{ c.materiales_asignados }}</span></td>
               <td>
-                <button type="button" class="btn gap-1 border-none bg-[#880d27] text-white hover:bg-[#6e0a1f]">
+                <button type="button" class="btn btn-neutral btn-sm gap-1">
                   {% include 'core/partials/icon.html' with name='pencil' extra='size-3.5' %}
                   Editar
                 </button>
@@ -76,7 +76,7 @@
               <td><span class="badge badge-info badge-sm text-white">{{ m.clase_sap }}</span></td>
               <td>{{ m.centro }}</td>
               <td>
-                <button type="button" class="btn gap-1 border-none bg-[#880d27] text-white hover:bg-[#6e0a1f]">
+                <button type="button" class="btn btn-neutral btn-sm gap-1">
                   {% include 'core/partials/icon.html' with name='pencil' extra='size-3.5' %}
                   Editar
                 </button>

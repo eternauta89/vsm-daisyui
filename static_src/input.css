@@ -104,11 +104,21 @@
   color: color-mix(in oklch, currentColor 60%, transparent);
 }
 
-/* Pressed state for the golden/primary buttons across the app. */
-.btn-primary:active:not(:disabled):not(.btn-disabled) {
-  background-color: #604e35 !important;
-  border-color: #604e35 !important;
-}
 .vsm-mobile-card-divider {
   border-color: color-mix(in oklch, currentColor 20%, transparent);
+}
+
+/* In dark mode --color-neutral is nearly the same shade as the card
+   background, so Neutral buttons (filled or outline) disappear. Lighten
+   the role specifically in dark so they stay visible as buttons. */
+[data-theme="dark"] .btn-neutral {
+  --btn-color: color-mix(in oklch, var(--color-neutral) 70%, white 20%);
+}
+[data-theme="dark"] .btn-neutral:hover:not(:disabled):not(.btn-disabled) {
+  background-color: #2e2d2d !important;
+  border-color: #2e2d2d !important;
+}
+[data-theme="dark"] .btn-neutral:active:not(:disabled):not(.btn-disabled) {
+  background-color: #141313 !important;
+  border-color: #141313 !important;
 }

@@ -35,10 +35,10 @@
         <input type="search" name="q" class="grow" placeholder="Buscar por solicitante, retirante, VSM, o CC..." value="{{ q }}" data-autosubmit-empty />
       </label>
 
-      <button type="submit" name="buscar" value="1" class="btn btn-primary">Buscar</button>
+      <button type="submit" name="buscar" value="1" class="btn btn-neutral">Buscar</button>
 
       <div class="ml-auto">
-        <button type="button" class="btn btn-outline btn-primary gap-2" popovertarget="registros-filtros-panel" style="anchor-name: --registros-filtros-panel">
+        <button type="button" class="btn btn-neutral gap-2" popovertarget="registros-filtros-panel" style="anchor-name: --registros-filtros-panel">
           {% include 'core/partials/icon.html' with name='filter' extra='size-4' %}
           Filtrar
           {% include 'core/partials/icon.html' with name='chevron-down' extra='size-4' %}
@@ -64,9 +64,9 @@
           <fieldset class="fieldset mt-3 p-0">
             <label class="label">Filtro rápido</label>
             <div class="flex gap-2">
-              <button type="button" class="btn btn-sm btn-primary" x-bind:class="presetActivo === 'hoy' ? '' : 'btn-outline'" x-on:click="aplicarPreset('hoy', 0)">Hoy</button>
-              <button type="button" class="btn btn-sm btn-primary" x-bind:class="presetActivo === 'semana' ? '' : 'btn-outline'" x-on:click="aplicarPreset('semana', 7)">Última semana</button>
-              <button type="button" class="btn btn-sm btn-primary" x-bind:class="presetActivo === 'mes' ? '' : 'btn-outline'" x-on:click="aplicarPreset('mes', 30)">Último mes</button>
+              <button type="button" class="btn btn-sm btn-neutral" x-bind:class="presetActivo === 'hoy' ? '' : 'btn-outline'" x-on:click="aplicarPreset('hoy', 0)">Hoy</button>
+              <button type="button" class="btn btn-sm btn-neutral" x-bind:class="presetActivo === 'semana' ? '' : 'btn-outline'" x-on:click="aplicarPreset('semana', 7)">Última semana</button>
+              <button type="button" class="btn btn-sm btn-neutral" x-bind:class="presetActivo === 'mes' ? '' : 'btn-outline'" x-on:click="aplicarPreset('mes', 30)">Último mes</button>
             </div>
           </fieldset>
 
@@ -86,7 +86,7 @@
             </label>
           </fieldset>
 
-          <button type="submit" name="buscar" value="1" class="btn btn-primary mt-4 w-full">Aplicar</button>
+          <button type="submit" name="buscar" value="1" class="btn btn-neutral mt-4 w-full">Aplicar</button>
         </div>
       </div>
     </div>

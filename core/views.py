@@ -129,6 +129,75 @@ ENTREGA_ITEMS = [
 # Views
 # ---------------------------------------------------------------------------
 
+ROLES = {
+    'Operador de pañol': {'vales-de-salida', 'control-de-stock', 'firmas-digitales'},
+    'Supervisor': {'vales-de-salida', 'registros', 'control-de-stock', 'permiso-de-retiro', 'firmas-digitales'},
+    'Administrativo': {'registros', 'permiso-de-retiro', 'control-de-stock'},
+}
+
+# Sub-permissions inside "Control de stock", which has two tabs. A role can
+# have the page but not every tab in it.
+TABS_CONTROL_DE_STOCK = {
+    'Operador de pañol': {'por-fecha'},
+    'Supervisor': {'por-fecha', 'existencia-sap'},
+    'Administrativo': {'existencia-sap'},
+}
+
+
+def rol_actual(request):
+    rol = request.GET.get('rol', request.session.get('rol', 'Operador de pañol'))
+    if rol not in ROLES:
+        rol = 'Operador de pañol'
+    request.session['rol'] = rol
+    return rol
+
+
+# Crear un vale es un permiso aparte del acceso a la pantalla "Vales de
+# salida" (un rol puede poder solicitar sin tener el módulo completo).
+PUEDE_CREAR_VALE = {'Operador de pañol', 'Supervisor', 'Administrativo'}
+
+PAGINAS_INFO = {
+    'vales-de-salida': {'icon': 'file-text', 'descripcion': 'Solicitar y entregar vales de salida de materiales.'},
+    'registros': {'icon': 'clock', 'descripcion': 'Consultar el historial de vales por fecha, solicitante o producto.'},
+    'control-de-stock': {'icon': 'bar-chart-3', 'descripcion': 'Incluye dos secciones: Control de stock (movimientos por fecha) y Stock total (existencias en SAP).'},
+    'permiso-de-retiro': {'icon': 'shield-check', 'descripcion': 'Incluye tres secciones: Materiales sin permiso, Materiales con permiso y Centro de costos.'},
+    'firmas-digitales': {'icon': 'file-signature', 'descripcion': 'Capturar la firma de conformidad de los retirantes.'},
+}
+
+
+def inicio(request):
+    rol = rol_actual(request)
+    permitidas = ROLES[rol]
+
+    etiquetas = {
+        'vales-de-salida': 'Vales de salida',
+        'registros': 'Registros',
+        'control-de-stock': 'Control de stock',
+        'permiso-de-retiro': 'Permisos de retiro',
+        'firmas-digitales': 'Firmas digitales',
+    }
+    paginas = [
+        {
+            'key': key,
+            'label': etiquetas[key],
+            'url': reverse(f'core:{key}'),
+            'icon': info['icon'],
+            'descripcion': info['descripcion'],
+            'accesible': key in permitidas,
+        }
+        for key, info in PAGINAS_INFO.items()
+    ]
+
+    context = {
+        'active_page': 'inicio',
+        'rol': rol,
+        'roles': list(ROLES.keys()),
+        'puede_crear_vale': rol in PUEDE_CREAR_VALE,
+        'paginas': paginas,
+    }
+    return render(request, 'core/inicio.html', context)
+
+
 def vales_de_salida(request):
     tab = request.GET.get('tab', 'pendientes')
     if tab not in ('todos', 'pendientes', 'entregados', 'no-autorizadas'):
@@ -304,7 +373,14 @@ def registros(request):
 
 
 def control_de_stock(request):
-    tab = request.GET.get('tab', 'por-fecha')
+    rol = rol_actual(request)
+    tabs_permitidas = TABS_CONTROL_DE_STOCK.get(rol, {'por-fecha', 'existencia-sap'})
+    tab_por_defecto = 'por-fecha' if 'por-fecha' in tabs_permitidas else 'existencia-sap'
+
+    tab_solicitada = request.GET.get('tab')
+    tab = tab_solicitada if tab_solicitada in ('por-fecha', 'existencia-sap') else tab_por_defecto
+    tab_sin_acceso = tab not in tabs_permitidas
+
     q = request.GET.get('q', '')
     almacen = request.GET.get('almacen', 'todos')
     solo_con_stock = request.GET.get('solo_con_stock') == 'on'
@@ -331,6 +407,8 @@ def control_de_stock(request):
     context = {
         'active_page': 'control-de-stock',
         'active_tab': tab,
+        'tabs_permitidas': tabs_permitidas,
+        'tab_sin_acceso': tab_sin_acceso,
         'q': q,
         'almacen': almacen,
         'solo_con_stock': solo_con_stock,

@@ -37,11 +37,11 @@
             data-autosubmit-empty
           />
         </label>
-        <button type="submit" name="buscar" value="1" class="btn btn-primary">Buscar</button>
+        <button type="submit" name="buscar" value="1" class="btn btn-neutral">Buscar</button>
       </form>
 
       <div class="flex items-center gap-3">
-        <button type="button" class="btn btn-outline btn-primary gap-2" popovertarget="filtros-panel" style="anchor-name: --filtros-panel">
+        <button type="button" class="btn btn-neutral gap-2" popovertarget="filtros-panel" style="anchor-name: --filtros-panel">
           {% include 'core/partials/icon.html' with name='filter' extra='size-4' %}
           <span x-text="filters.length > 0 ? ('Filtrar - ' + filters.length) : 'Filtrar'"></span>
           {% include 'core/partials/icon.html' with name='chevron-down' extra='size-4' %}
@@ -83,7 +83,7 @@
             </select>
           </fieldset>
 
-          <button type="button" class="btn btn-primary mt-4 w-full" popovertarget="filtros-panel" x-on:click="aplicar()">Aplicar</button>
+          <button type="button" class="btn btn-neutral mt-4 w-full" popovertarget="filtros-panel" x-on:click="aplicar()">Aplicar</button>
         </div>
 
         <button type="button" class="btn btn-primary hidden gap-2 md:inline-flex" onclick="document.getElementById('solicitar_vale_modal').showModal()">
@@ -195,7 +195,7 @@
 
         <button
           type="button"
-          class="btn btn-success mt-3 w-full gap-2 text-white active:!bg-[#009a6e]"
+          class="btn btn-neutral mt-3 w-full gap-2"
           {% if vale.estado == 'Entregado' %}disabled{% endif %}
           onclick="window.abrirEntregarMateriales('{{ vale.vsm|escapejs }}', '{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{% url 'core:entregar-vale' vsm=vale.vsm %}')"
         >
@@ -253,7 +253,7 @@
               <div class="flex items-center gap-1">
                 <button
                   type="button"
-                  class="btn btn-success text-white active:!bg-[#009a6e]"
+                  class="btn btn-neutral"
                   {% if vale.estado == 'Entregado' %}disabled{% endif %}
                   onclick="window.abrirEntregarMateriales('{{ vale.vsm|escapejs }}', '{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{% url 'core:entregar-vale' vsm=vale.vsm %}')"
                 >

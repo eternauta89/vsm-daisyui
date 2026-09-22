@@ -1,0 +1,82 @@
+{% extends 'core/base.html' %}
+{% block page_title %}Inicio{% endblock %}
+{% block header_title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="card bg-base-100 rounded-box border border-base-300 p-4 shadow-sm sm:p-6">
+  <div class="bg-base-200 border-base-300 rounded-lg border p-4">
+    <p class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
+      {% include 'core/partials/icon.html' with name='layout-grid' extra='size-4' %}
+      Accesos rápidos
+    </p>
+    <p class="text-base-content/60 mt-1 text-xs">Elegí a qué sección querés ir. Lo que ves depende de tu rol.</p>
+  </div>
+
+  <form method="get" class="mt-4 flex flex-wrap items-end gap-3">
+    <fieldset class="fieldset p-0">
+      <label class="label" for="inicio-rol">Rol (simulado)</label>
+      <select id="inicio-rol" name="rol" class="select w-56" onchange="this.form.requestSubmit()">
+        {% for r in roles %}
+          <option value="{{ r }}" {% if rol == r %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </fieldset>
+  </form>
+
+  <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% if puede_crear_vale %}
+      <button
+        type="button"
+        class="border-base-300 hover:border-primary hover:bg-base-200 flex flex-col gap-3 rounded-box border p-5 text-left transition-colors"
+        onclick="document.getElementById('solicitar_vale_modal').showModal()"
+      >
+        <div class="bg-primary text-primary-content flex size-10 items-center justify-center rounded-full">
+          {% include 'core/partials/icon.html' with name='plus' extra='size-5' %}
+        </div>
+        <div>
+          <p class="font-medium">Nuevo VSM</p>
+          <p class="text-base-content/60 mt-1 text-sm">Solicitar un nuevo vale de salida de materiales.</p>
+        </div>
+        <span class="text-primary mt-auto flex items-center gap-1 text-sm font-medium">
+          Crear
+          {% include 'core/partials/icon.html' with name='arrow-right' extra='size-4' %}
+        </span>
+      </button>
+    {% endif %}
+    {% for pagina in paginas %}
+      {% if pagina.accesible %}
+        <a
+          href="{{ pagina.url }}"
+          class="border-base-300 hover:border-primary hover:bg-base-200 flex flex-col gap-3 rounded-box border p-5 transition-colors"
+        >
+          <div class="bg-primary text-primary-content flex size-10 items-center justify-center rounded-full">
+            {% include 'core/partials/icon.html' with name=pagina.icon extra='size-5' %}
+          </div>
+          <div>
+            <p class="font-medium">{{ pagina.label }}</p>
+            <p class="text-base-content/60 mt-1 text-sm">{{ pagina.descripcion }}</p>
+          </div>
+          <span class="text-primary mt-auto flex items-center gap-1 text-sm font-medium">
+            Entrar
+            {% include 'core/partials/icon.html' with name='arrow-right' extra='size-4' %}
+          </span>
+        </a>
+      {% else %}
+        <div class="border-base-300 bg-base-200/50 flex flex-col gap-3 rounded-box border p-5 opacity-60">
+          <div class="bg-base-300 text-base-content/50 flex size-10 items-center justify-center rounded-full">
+            {% include 'core/partials/icon.html' with name=pagina.icon extra='size-5' %}
+          </div>
+          <div>
+            <p class="font-medium">{{ pagina.label }}</p>
+            <p class="text-base-content/60 mt-1 text-sm">{{ pagina.descripcion }}</p>
+          </div>
+          <span class="text-base-content/50 mt-auto flex items-center gap-1 text-sm font-medium">
+            {% include 'core/partials/icon.html' with name='lock' extra='size-4' %}
+            Sin acceso para tu rol
+          </span>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
