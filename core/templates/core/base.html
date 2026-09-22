@@ -117,7 +117,7 @@
                 <li>
                   <a
                     href="{{ item.url }}"
-                    class="{% if item.key == active_page %}menu-active border-primary text-neutral-content border-l-4 !bg-white/10{% else %}text-neutral-content{% endif %}"
+                    class="{% if item.key == active_page %}menu-active border-primary text-neutral-content border-l-4 !bg-white/10{% else %}text-neutral-content hover:bg-white/10{% endif %}"
                   >
                     {% include 'core/partials/icon.html' with name=item.icon extra='size-5' %}
                     {{ item.label }}
