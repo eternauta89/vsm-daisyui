@@ -23,18 +23,18 @@
   </div>
 
   <div class="card bg-base-100 rounded-box border border-base-300 p-4 shadow-sm sm:p-6">
-    <div role="tablist" class="tabs tabs-box w-fit">
-      <a href="?tab=por-fecha" role="tab" class="tab {% if active_tab == 'por-fecha' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Control de stock</a>
-      <a href="?tab=existencia-sap" role="tab" class="tab {% if active_tab == 'existencia-sap' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Stock total</a>
-    </div>
-
-    {% if tab_sin_acceso %}
-      <div class="border-base-300 bg-base-200/50 mt-4 flex flex-col items-center gap-2 rounded-box border px-6 py-16 text-center">
-        {% include 'core/partials/icon.html' with name='lock' extra='text-base-content/30 size-8' %}
-        <p class="text-base-content/60 font-medium">No tenés acceso a esta sección</p>
-        <p class="text-base-content/40 max-w-sm text-sm">Tu rol actual no incluye esta pestaña de Control de stock. Pedile acceso a tu supervisor si lo necesitás.</p>
+    {% if tabs_permitidas|length > 1 %}
+      <div role="tablist" class="tabs tabs-box w-fit">
+        {% if 'por-fecha' in tabs_permitidas %}
+          <a href="?tab=por-fecha" role="tab" class="tab {% if active_tab == 'por-fecha' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Control de stock</a>
+        {% endif %}
+        {% if 'existencia-sap' in tabs_permitidas %}
+          <a href="?tab=existencia-sap" role="tab" class="tab {% if active_tab == 'existencia-sap' %}tab-active bg-base-300 text-primary border-primary border-b-2 font-semibold{% endif %}">Stock total</a>
+        {% endif %}
       </div>
-    {% elif active_tab == 'existencia-sap' %}
+    {% endif %}
+
+    {% if active_tab == 'existencia-sap' %}
       <div class="bg-base-200 border-base-300 mt-4 rounded-lg border p-4">
         <p class="text-base-content/70 flex items-center gap-2 text-sm font-medium">
           {% include 'core/partials/icon.html' with name='package' extra='size-4' %}

@@ -229,12 +229,22 @@
             </td>
           </tr>
         {% endif %}
-        {% for vale in vales %}
+      </tbody>
+      {% for vale in vales %}
+        <tbody x-data="{ expandido: false }">
           <tr class="hover:bg-base-200">
             <td>
-              <button type="button" class="link link-hover font-medium text-base-content/70" onclick="window.abrirVerMateriales('{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{{ vale.estado|escapejs }}')">
-                {{ vale.vsm }}
-              </button>
+              {% if vale.estado == 'Pendiente' %}
+                <button type="button" class="link link-hover flex items-center gap-1 font-medium text-base-content/70" x-on:click="expandido = !expandido">
+                  {{ vale.vsm }}
+                  <span x-show="!expandido">{% include 'core/partials/icon.html' with name='chevron-down' extra='size-3.5' %}</span>
+                  <span x-show="expandido" x-cloak>{% include 'core/partials/icon.html' with name='chevron-up' extra='size-3.5' %}</span>
+                </button>
+              {% else %}
+                <button type="button" class="link link-hover font-medium text-base-content/70" onclick="window.abrirVerMateriales('{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{{ vale.estado|escapejs }}')">
+                  {{ vale.vsm }}
+                </button>
+              {% endif %}
             </td>
             <td><span class="badge badge-accent badge-sm">{{ vale.tipo }}</span></td>
             <td>
@@ -274,7 +284,11 @@
                   id="acciones-vale-{{ forloop.counter }}"
                   style="position-anchor: --acciones-vale-{{ forloop.counter }}"
                 >
-                  <li><button type="button" onclick="window.abrirVerMateriales('{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{{ vale.estado|escapejs }}')">{% include 'core/partials/icon.html' with name='eye' extra='size-4' %}Ver comprobante</button></li>
+                  {% if vale.estado == 'Pendiente' %}
+                    <li><button type="button" x-on:click="expandido = true">{% include 'core/partials/icon.html' with name='eye' extra='size-4' %}Ver comprobante</button></li>
+                  {% else %}
+                    <li><button type="button" onclick="window.abrirVerMateriales('{{ vale.retirante|escapejs }}', '{{ vale.legajo|escapejs }}', '{{ vale.estado|escapejs }}')">{% include 'core/partials/icon.html' with name='eye' extra='size-4' %}Ver comprobante</button></li>
+                  {% endif %}
                   <li><button type="button" onclick="window.print()">{% include 'core/partials/icon.html' with name='printer' extra='size-4' %}Imprimir</button></li>
                   {% if vale.estado != 'Entregado' %}
                     <li><button type="button" onclick="document.getElementById('solicitar_vale_modal').showModal()">{% include 'core/partials/icon.html' with name='pencil' extra='size-4' %}Editar vale</button></li>
@@ -284,8 +298,80 @@
               </div>
             </td>
           </tr>
-        {% endfor %}
-      </tbody>
+          {% if vale.estado == 'Pendiente' %}
+          <tr x-show="expandido" x-cloak>
+            <td colspan="9" class="bg-base-200 p-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-semibold">Informe de pañol — VSM {{ vale.vsm }}</h4>
+                <button type="button" class="btn btn-ghost btn-sm gap-1" onclick="window.print()">
+                  {% include 'core/partials/icon.html' with name='printer' extra='size-4' %}
+                  Imprimir
+                </button>
+              </div>
+              <div class="bg-base-100 rounded-box border border-base-300 mt-3 p-4 shadow-sm">
+                <p class="text-base-content/60 flex items-center gap-2 text-[14px] font-semibold tracking-wide uppercase">
+                  {% include 'core/partials/icon.html' with name='receipt' extra='size-3.5' %}
+                  Comprobante
+                </p>
+                <div class="mt-2 max-w-full overflow-x-auto rounded-box border border-base-300">
+                  <table class="table table-xs [&_tr]:!text-[12px]">
+                    <thead>
+                      <tr>
+                        <th>Cod. CBTE.</th>
+                        <th>N. CBTE.</th>
+                        <th>Tipo fact.</th>
+                        <th>Fecha CBTE.</th>
+                        <th>N° documento SAP</th>
+                        <th>CC</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td></td>
+                        <td>N° 1494</td>
+                        <td>Facturado</td>
+                        <td>24/06/2026</td>
+                        <td>4900000822</td>
+                        <td>{{ vale.cc }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="bg-base-100 rounded-box border border-base-300 mt-3 p-4 shadow-sm">
+                <p class="text-base-content/60 flex items-center gap-2 text-[14px] font-semibold tracking-wide uppercase">
+                  {% include 'core/partials/icon.html' with name='package' extra='size-3.5' %}
+                  Materiales
+                </p>
+                <div class="mt-2 max-w-full overflow-x-auto rounded-box border border-base-300">
+                  <table class="table table-xs [&_tr]:!text-[12px]">
+                    <thead>
+                      <tr>
+                        <th>Cant. solicitada</th>
+                        <th>Descripción</th>
+                        <th>Código artículo</th>
+                        <th>Cant. entregada</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in ver_materiales_items %}
+                        <tr>
+                          <td>{{ item.cantidad_solicitada }}</td>
+                          <td>{{ item.descripcion }}</td>
+                          <td class="text-info">{{ item.codigo_articulo }}</td>
+                          <td>{{ item.cantidad_entregada }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      {% endfor %}
     </table>
   </div>
 

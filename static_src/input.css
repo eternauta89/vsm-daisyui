@@ -8,6 +8,10 @@
     "Segoe UI Emoji";
 }
 
+[x-cloak] {
+  display: none !important;
+}
+
 @plugin "daisyui" {
   themes: false;
 }

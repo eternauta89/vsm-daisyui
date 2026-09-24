@@ -122,6 +122,7 @@ ENTREGA_ITEMS = [
     {'nombre': 'BOTIN NEGRO N° 42 DIELEC AQUILES-N04', 'solicitado': 2, 'entregado': 1},
     {'nombre': 'BOTIN NEGRO N° 42 DIELEC AQUILES-N04', 'solicitado': 2, 'entregado': 1},
     {'nombre': 'BOTIN NEGRO N° 42 DIELEC AQUILES-N04', 'solicitado': 2, 'entregado': 1},
+    {'nombre': 'GUANTES DE CUERO REFORZADO TALLE L', 'solicitado': 3, 'entregado': 3},
 ]
 
 
@@ -168,6 +169,7 @@ PAGINAS_INFO = {
 def inicio(request):
     rol = rol_actual(request)
     permitidas = ROLES[rol]
+    tabs_stock = TABS_CONTROL_DE_STOCK.get(rol, {'por-fecha', 'existencia-sap'})
 
     etiquetas = {
         'vales-de-salida': 'Vales de salida',
@@ -176,6 +178,13 @@ def inicio(request):
         'permiso-de-retiro': 'Permisos de retiro',
         'firmas-digitales': 'Firmas digitales',
     }
+
+    descripciones = dict(PAGINAS_INFO)
+    if 'por-fecha' in tabs_stock and 'existencia-sap' not in tabs_stock:
+        descripciones['control-de-stock'] = {**descripciones['control-de-stock'], 'descripcion': 'Incluye la sección Control de stock (movimientos por fecha).'}
+    elif 'existencia-sap' in tabs_stock and 'por-fecha' not in tabs_stock:
+        descripciones['control-de-stock'] = {**descripciones['control-de-stock'], 'descripcion': 'Incluye la sección Stock total (existencias en SAP).'}
+
     paginas = [
         {
             'key': key,
@@ -185,7 +194,7 @@ def inicio(request):
             'descripcion': info['descripcion'],
             'accesible': key in permitidas,
         }
-        for key, info in PAGINAS_INFO.items()
+        for key, info in descripciones.items()
     ]
 
     context = {
@@ -378,8 +387,12 @@ def control_de_stock(request):
     tab_por_defecto = 'por-fecha' if 'por-fecha' in tabs_permitidas else 'existencia-sap'
 
     tab_solicitada = request.GET.get('tab')
+    if tab_solicitada and tab_solicitada not in tabs_permitidas:
+        qs = request.GET.copy()
+        qs['tab'] = tab_por_defecto
+        return HttpResponseRedirect(f"{reverse('core:control-de-stock')}?{qs.urlencode()}")
+
     tab = tab_solicitada if tab_solicitada in ('por-fecha', 'existencia-sap') else tab_por_defecto
-    tab_sin_acceso = tab not in tabs_permitidas
 
     q = request.GET.get('q', '')
     almacen = request.GET.get('almacen', 'todos')
@@ -408,7 +421,6 @@ def control_de_stock(request):
         'active_page': 'control-de-stock',
         'active_tab': tab,
         'tabs_permitidas': tabs_permitidas,
-        'tab_sin_acceso': tab_sin_acceso,
         'q': q,
         'almacen': almacen,
         'solo_con_stock': solo_con_stock,

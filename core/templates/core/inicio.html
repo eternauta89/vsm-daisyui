@@ -61,20 +61,6 @@
             {% include 'core/partials/icon.html' with name='arrow-right' extra='size-4' %}
           </span>
         </a>
-      {% else %}
-        <div class="border-base-300 bg-base-200/50 flex flex-col gap-3 rounded-box border p-5 opacity-60">
-          <div class="bg-base-300 text-base-content/50 flex size-10 items-center justify-center rounded-full">
-            {% include 'core/partials/icon.html' with name=pagina.icon extra='size-5' %}
-          </div>
-          <div>
-            <p class="font-medium">{{ pagina.label }}</p>
-            <p class="text-base-content/60 mt-1 text-sm">{{ pagina.descripcion }}</p>
-          </div>
-          <span class="text-base-content/50 mt-auto flex items-center gap-1 text-sm font-medium">
-            {% include 'core/partials/icon.html' with name='lock' extra='size-4' %}
-            Sin acceso para tu rol
-          </span>
-        </div>
       {% endif %}
     {% endfor %}
   </div>
